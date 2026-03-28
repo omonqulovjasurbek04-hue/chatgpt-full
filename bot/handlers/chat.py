@@ -7,14 +7,11 @@ from bot.utils.sender import send_long_message
 
 router = Router()
 
-
-# ===== Oddiy xabar (Chat) =====
 @router.message(F.text)
 async def handle_message(message: Message):
     user_id = message.from_user.id
     user_text = message.text
 
-    # Typing ko'rsatgich — foydalanuvchi javob kutayotganini biladi
     await message.bot.send_chat_action(message.chat.id, ChatAction.TYPING)
 
     processing_msg = await message.answer("⏳ O'ylayapman...")

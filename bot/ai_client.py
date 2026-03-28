@@ -1,31 +1,23 @@
 import logging
 
-from mistralai import Mistral
+from mistralai.client import Mistral
 
 from bot.config import MISTRAL_API_KEY, SYSTEM_PROMPT, MAX_HISTORY, get_user_model
 
 logger = logging.getLogger(__name__)
 
-# ===== Mistral Client =====
 mistral_client = Mistral(api_key=MISTRAL_API_KEY)
 
-# ===== Chat tarixi (user_id -> messages) =====
 chat_histories: dict[int, list[dict]] = {}
 
-
 def _trim_history(user_id: int):
-    """Tarixni MAX_HISTORY ga cheklash (memory leak oldini olish)"""
     if len(chat_histories[user_id]) > MAX_HISTORY:
         chat_histories[user_id] = chat_histories[user_id][-MAX_HISTORY:]
 
-
 def clear_history(user_id: int):
-    """Foydalanuvchi tarixini tozalash"""
     chat_histories[user_id] = []
 
-
 async def mistral_chat(user_id: int, user_message: str) -> str:
-    """Mistral AI bilan asinxron chat qilish — foydalanuvchi tanlagan model bilan"""
     if user_id not in chat_histories:
         chat_histories[user_id] = []
 
@@ -36,10 +28,8 @@ async def mistral_chat(user_id: int, user_message: str) -> str:
 
     _trim_history(user_id)
 
-    # Foydalanuvchi tanlagan chat modelini olish
     chat_model = get_user_model(user_id, "chat")
 
-    # System prompt + oxirgi xabarlar
     messages = [SYSTEM_PROMPT] + chat_histories[user_id]
 
     try:
@@ -62,9 +52,7 @@ async def mistral_chat(user_id: int, user_message: str) -> str:
         logger.error(f"Mistral chat xatosi (model={chat_model}): {e}", exc_info=True)
         return "❌ Xato yuz berdi. Iltimos, keyinroq urinib ko'ring."
 
-
 async def mistral_ocr(user_id: int, document_url: str) -> str:
-    """Hujjatni asinxron OCR qilish — foydalanuvchi tanlagan model bilan"""
     ocr_model = get_user_model(user_id, "ocr")
 
     try:
@@ -91,9 +79,7 @@ async def mistral_ocr(user_id: int, document_url: str) -> str:
         logger.error(f"OCR xatosi (model={ocr_model}): {e}", exc_info=True)
         return "❌ OCR xatosi yuz berdi. URL to'g'riligini tekshiring."
 
-
 async def mistral_transcribe(user_id: int, audio_url: str) -> str:
-    """Audio faylni asinxron matnga aylantirish — foydalanuvchi tanlagan model bilan"""
     audio_model = get_user_model(user_id, "audio")
 
     try:
@@ -110,9 +96,7 @@ async def mistral_transcribe(user_id: int, audio_url: str) -> str:
         logger.error(f"Transkripsiya xatosi (model={audio_model}): {e}", exc_info=True)
         return "❌ Transkripsiya xatosi yuz berdi. Audio URL to'g'riligini tekshiring."
 
-
 async def close_client():
-    """Mistral client sessiyasini yopish (graceful shutdown)"""
     try:
         await mistral_client.close_async()
         logger.info("Mistral client yopildi")

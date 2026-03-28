@@ -7,13 +7,9 @@ from bot.utils.formatter import format_to_html
 
 logger = logging.getLogger(__name__)
 
-
 async def send_long_message(message: Message, processing_msg: Message, text: str, prefix: str = ""):
-    """Uzun xabarlarni bo'lib yuborish (Telegram 4096 belgi limiti)"""
-
     full_text = f"{prefix}{text}" if prefix else text
 
-    # 4000 belgidan bo'lib yuboramiz (xavfsiz chegara)
     chunks = [full_text[i:i + 4000] for i in range(0, len(full_text), 4000)]
 
     for i, chunk in enumerate(chunks):

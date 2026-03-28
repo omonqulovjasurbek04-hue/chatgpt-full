@@ -12,10 +12,7 @@ from bot.config import (
 
 router = Router()
 
-
-# ===== Reply Keyboard (asosiy menyu) =====
 def get_main_keyboard() -> ReplyKeyboardMarkup:
-    """Asosiy menyu tugmalari"""
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [
@@ -34,10 +31,7 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
     )
     return keyboard
 
-
-# ===== Inline Keyboard: Model tanlash =====
 def get_models_menu_keyboard() -> InlineKeyboardMarkup:
-    """Model kategoriyasini tanlash"""
     buttons = [
         [InlineKeyboardButton(text="💬 Chat modeli", callback_data="models_chat")],
         [InlineKeyboardButton(text="📄 OCR modeli", callback_data="models_ocr")],
@@ -46,9 +40,7 @@ def get_models_menu_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-
 def get_chat_models_keyboard(user_id: int) -> InlineKeyboardMarkup:
-    """Chat modellarini tanlash"""
     current = get_user_model(user_id, "chat")
     buttons = []
     for model_id, model_name in CHAT_MODELS.items():
@@ -62,9 +54,7 @@ def get_chat_models_keyboard(user_id: int) -> InlineKeyboardMarkup:
     buttons.append([InlineKeyboardButton(text="⬅️ Orqaga", callback_data="models_back")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-
 def get_ocr_models_keyboard(user_id: int) -> InlineKeyboardMarkup:
-    """OCR modellarini tanlash"""
     current = get_user_model(user_id, "ocr")
     buttons = []
     for model_id, model_name in OCR_MODELS.items():
@@ -78,9 +68,7 @@ def get_ocr_models_keyboard(user_id: int) -> InlineKeyboardMarkup:
     buttons.append([InlineKeyboardButton(text="⬅️ Orqaga", callback_data="models_back")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-
 def get_audio_models_keyboard(user_id: int) -> InlineKeyboardMarkup:
-    """Audio modellarini tanlash"""
     current = get_user_model(user_id, "audio")
     buttons = []
     for model_id, model_name in AUDIO_MODELS.items():
@@ -94,9 +82,7 @@ def get_audio_models_keyboard(user_id: int) -> InlineKeyboardMarkup:
     buttons.append([InlineKeyboardButton(text="⬅️ Orqaga", callback_data="models_back")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-
 def get_current_models_text(user_id: int) -> str:
-    """Foydalanuvchining hozirgi modellarini ko'rsatish"""
     chat_model = get_user_model(user_id, "chat")
     ocr_model = get_user_model(user_id, "ocr")
     audio_model = get_user_model(user_id, "audio")
@@ -116,8 +102,6 @@ def get_current_models_text(user_id: int) -> str:
         "Modelni o'zgartirish uchun quyidagi tugmalarni bosing:"
     )
 
-
-# ===== /start =====
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     welcome = (
@@ -132,8 +116,6 @@ async def cmd_start(message: Message):
     )
     await message.answer(welcome, parse_mode=ParseMode.HTML, reply_markup=get_main_keyboard())
 
-
-# ===== /help =====
 @router.message(Command("help"))
 async def cmd_help(message: Message):
     help_text = (
@@ -158,8 +140,6 @@ async def cmd_help(message: Message):
     )
     await message.answer(help_text, parse_mode=ParseMode.HTML, reply_markup=get_main_keyboard())
 
-
-# ===== /clear =====
 @router.message(Command("clear"))
 async def cmd_clear(message: Message):
     user_id = message.from_user.id
@@ -169,8 +149,6 @@ async def cmd_clear(message: Message):
         reply_markup=get_main_keyboard()
     )
 
-
-# ===== /models =====
 @router.message(Command("models"))
 async def cmd_models(message: Message):
     user_id = message.from_user.id
@@ -181,22 +159,17 @@ async def cmd_models(message: Message):
         reply_markup=get_models_menu_keyboard()
     )
 
-
-# ===== Keyboard button handlers =====
 @router.message(lambda m: m.text == "📖 Yordam")
 async def btn_help(message: Message):
     await cmd_help(message)
-
 
 @router.message(lambda m: m.text == "🗑 Tozalash")
 async def btn_clear(message: Message):
     await cmd_clear(message)
 
-
 @router.message(lambda m: m.text == "⚙️ Modellar")
 async def btn_models(message: Message):
     await cmd_models(message)
-
 
 @router.message(lambda m: m.text == "💬 Chat")
 async def btn_chat(message: Message):
@@ -206,7 +179,6 @@ async def btn_chat(message: Message):
         parse_mode=ParseMode.HTML,
         reply_markup=get_main_keyboard()
     )
-
 
 @router.message(lambda m: m.text == "📄 OCR")
 async def btn_ocr(message: Message):
@@ -219,7 +191,6 @@ async def btn_ocr(message: Message):
         reply_markup=get_main_keyboard()
     )
 
-
 @router.message(lambda m: m.text == "🎙 Audio")
 async def btn_audio(message: Message):
     await message.answer(
@@ -230,9 +201,6 @@ async def btn_audio(message: Message):
         parse_mode=ParseMode.HTML,
         reply_markup=get_main_keyboard()
     )
-
-
-# ===== Callback handlers (inline tugmalar) =====
 
 @router.callback_query(lambda c: c.data == "models_chat")
 async def cb_models_chat(callback: CallbackQuery):
@@ -245,7 +213,6 @@ async def cb_models_chat(callback: CallbackQuery):
     )
     await callback.answer()
 
-
 @router.callback_query(lambda c: c.data == "models_ocr")
 async def cb_models_ocr(callback: CallbackQuery):
     user_id = callback.from_user.id
@@ -256,7 +223,6 @@ async def cb_models_ocr(callback: CallbackQuery):
         reply_markup=get_ocr_models_keyboard(user_id)
     )
     await callback.answer()
-
 
 @router.callback_query(lambda c: c.data == "models_audio")
 async def cb_models_audio(callback: CallbackQuery):
@@ -269,7 +235,6 @@ async def cb_models_audio(callback: CallbackQuery):
     )
     await callback.answer()
 
-
 @router.callback_query(lambda c: c.data == "models_back")
 async def cb_models_back(callback: CallbackQuery):
     user_id = callback.from_user.id
@@ -281,14 +246,10 @@ async def cb_models_back(callback: CallbackQuery):
     )
     await callback.answer()
 
-
 @router.callback_query(lambda c: c.data == "models_close")
 async def cb_models_close(callback: CallbackQuery):
     await callback.message.delete()
     await callback.answer("✅ Menyu yopildi")
-
-
-# ===== Model tanlash callbacklari =====
 
 @router.callback_query(lambda c: c.data and c.data.startswith("set_chat_"))
 async def cb_set_chat_model(callback: CallbackQuery):
@@ -308,7 +269,6 @@ async def cb_set_chat_model(callback: CallbackQuery):
     else:
         await callback.answer("❌ Model topilmadi", show_alert=True)
 
-
 @router.callback_query(lambda c: c.data and c.data.startswith("set_ocr_"))
 async def cb_set_ocr_model(callback: CallbackQuery):
     user_id = callback.from_user.id
@@ -326,7 +286,6 @@ async def cb_set_ocr_model(callback: CallbackQuery):
         )
     else:
         await callback.answer("❌ Model topilmadi", show_alert=True)
-
 
 @router.callback_query(lambda c: c.data and c.data.startswith("set_audio_"))
 async def cb_set_audio_model(callback: CallbackQuery):

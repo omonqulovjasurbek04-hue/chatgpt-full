@@ -11,19 +11,15 @@ from bot.middlewares import RateLimitMiddleware, ErrorHandlerMiddleware
 from bot.handlers import commands, chat, ocr, audio
 from bot.handlers.unsupported import router as unsupported_router
 
-# ===== Logging =====
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-# ===== Bot va Dispatcher =====
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties())
 dp = Dispatcher()
 
-
-# ===== Bot commands menu =====
 async def set_bot_commands():
     bot_commands = [
         BotCommand(command="start", description="Botni ishga tushirish"),
@@ -34,20 +30,15 @@ async def set_bot_commands():
     ]
     await bot.set_my_commands(bot_commands)
 
-
-# ===== Graceful shutdown =====
 async def on_shutdown():
     logger.info("🛑 Bot to'xtatilmoqda...")
-    await close_client()  # Mistral sessiyani yopish
-    await bot.session.close()  # Telegram sessiyani yopish
+    await close_client()
+    await bot.session.close()
     logger.info("✅ Barcha sessiyalar yopildi")
 
-
-# ===== Main =====
 async def main():
     logger.info("🚀 Bot ishga tushmoqda...")
 
-    # Tokenlarni tekshirish
     if not BOT_TOKEN:
         logger.error("❌ BOT_TOKEN topilmadi! .env faylini tekshiring.")
         return
@@ -55,26 +46,21 @@ async def main():
         logger.error("❌ MISTRAL_API_KEY topilmadi! .env faylini tekshiring.")
         return
 
-    # Middlewarelarni ulash (tartib muhim: error -> rate limit)
-    dp.message.middleware(ErrorHandlerMiddleware())   # Xatolik ushlash (birinchi)
-    dp.message.middleware(RateLimitMiddleware())       # Spam himoya (ikkinchi)
+    dp.message.middleware(ErrorHandlerMiddleware())
+    dp.message.middleware(RateLimitMiddleware())
 
-    # Routerlarni ulash (tartib muhim!)
-    dp.include_router(commands.router)     # /start, /help, /clear
-    dp.include_router(ocr.router)          # /ocr
-    dp.include_router(audio.router)        # /audio
-    dp.include_router(chat.router)         # Oddiy matnli xabarlar
-    dp.include_router(unsupported_router)  # Rasm, video, sticker
+    dp.include_router(commands.router)
+    dp.include_router(ocr.router)
+    dp.include_router(audio.router)
+    dp.include_router(chat.router)
+    dp.include_router(unsupported_router)
 
-    # Shutdown callback
     dp.shutdown.register(on_shutdown)
 
-    # Bot buyruqlarini sozlash
     await set_bot_commands()
 
     logger.info("✅ Bot tayyor! Xabarlar kutilmoqda...")
     await dp.start_polling(bot)
-
 
 if __name__ == "__main__":
     asyncio.run(main())

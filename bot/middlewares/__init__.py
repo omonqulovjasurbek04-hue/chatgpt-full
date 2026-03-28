@@ -10,9 +10,7 @@ from bot.config import RATE_LIMIT_SECONDS
 
 logger = logging.getLogger(__name__)
 
-
 class RateLimitMiddleware(BaseMiddleware):
-    """Foydalanuvchi spam qilishini oldini olish"""
 
     def __init__(self):
         self.user_last_request: dict[int, float] = defaultdict(float)
@@ -39,7 +37,6 @@ class RateLimitMiddleware(BaseMiddleware):
 
 
 class ErrorHandlerMiddleware(BaseMiddleware):
-    """Markazlashtirilgan xatolik boshqaruvi — har bir handlerda try/except yozish shart emas"""
 
     async def __call__(
         self,
@@ -54,7 +51,6 @@ class ErrorHandlerMiddleware(BaseMiddleware):
                 f"Handler xatosi (user={getattr(event, 'from_user', None)}): {e}",
                 exc_info=True
             )
-            # Foydalanuvchiga xavfsiz xabar
             if isinstance(event, Message):
                 try:
                     await event.answer(
@@ -62,4 +58,4 @@ class ErrorHandlerMiddleware(BaseMiddleware):
                         "Muammo davom etsa, /clear buyrug'ini ishlating."
                     )
                 except Exception:
-                    pass  # Agar xabar yuborib bo'lmasa, logga yozilgan
+                    pass

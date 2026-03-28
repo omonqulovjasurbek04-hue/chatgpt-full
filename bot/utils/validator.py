@@ -1,6 +1,5 @@
 import urllib.parse
 
-
 def is_valid_url(url: str) -> bool:
     """URL to'g'riligini tekshirish"""
     try:

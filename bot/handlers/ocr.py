@@ -9,8 +9,6 @@ from bot.utils.validator import is_valid_url
 
 router = Router()
 
-
-# ===== /ocr <url> =====
 @router.message(Command("ocr"))
 async def cmd_ocr(message: Message):
     args = message.text.split(maxsplit=1)
@@ -25,7 +23,6 @@ async def cmd_ocr(message: Message):
 
     url = args[1].strip()
 
-    # URL validatsiya
     if not is_valid_url(url):
         await message.answer("⚠️ Noto'g'ri URL format. Iltimos, to'g'ri HTTP/HTTPS havola yuboring.")
         return
