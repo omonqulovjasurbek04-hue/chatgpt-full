@@ -11,6 +11,8 @@ from bot.middlewares import RateLimitMiddleware, ErrorHandlerMiddleware
 from bot.handlers import commands, chat, ocr, audio
 from bot.handlers.unsupported import router as unsupported_router
 
+
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
